@@ -13,30 +13,41 @@ import com.teamchat.client.sdk.chatlets.PrimaryChatlet;
 import com.teamchat.client.sdk.chatlets.TextChatlet;
 
 public class TranslateBot {
+	
+	public static final String USER[] = new String [100];
+	public static final String LANG[] = new String [100];
+	public static final String NAME[] = new String [100];
+	public static final String CODE[] = new String [100];
+	
+	public static final int NO_OF_USERS = 0;
+	
 	public static final String botemail = "teamchatbot1@gmail.com";
 	public static final String botpassword = "ameyambade";
-	public static String email1, lang1, name1;
-	public static String email2, lang2, name2;
-
+	
 	public static void main(String[] args) {
 		TeamchatAPI api = TeamchatAPI.fromFile("teamchat.data")
 				.setEmail(botemail).setPassword(botpassword)
 				.startReceivingEvents(new TranslateBot());
-
 	}
 
 	@OnKeyword("start")
 	
 	public void Register(TeamchatAPI api) {
 		
-		email1 = api.context().currentSender().getEmail();
-		name1 = api.context().currentSender().getName();
-		String msg = "Select your preferred language & enter the email of the user you want to talk to.";
-		Form f = api.objects().form();
+		USER[0] = api.context().currentSender().getEmail();
+		
+		NAME[0] = api.context().currentSender().getName();
+		
+		String msg = "Select your preferred language & the number of the users you want to talk to.";
+		
+		Form f = api.objects().form(); //Choose language of person 1
+		
 		f.addField(api.objects().select().label("Language")
 				.addOption("English").addOption("Spanish").addOption("French")
-				.addOption("German").name("language1"));
-		f.addField(api.objects().input().label("Email").name("mail"));
+				.addOption("German").name("lang0"));
+		
+		f.addField(api.objects().input().label("No. of users").name("users"));
+		
 		api.perform(api
 				.context()
 				.currentRoom()
@@ -45,19 +56,26 @@ public class TranslateBot {
 						.alias("register")));
 	}
 
-	String l1 = new String();
-	String l2 = new String();
+//	String l1 = new String();
+//	String l2 = new String();
 
 	@OnAlias("register")
 	public void Create(TeamchatAPI api) {
-		lang1 = api.context().currentReply().getField("language1");
-		if (lang1.equals("English")) {
+		
+		String s = api.context().currentReply().getField("users");
+		
+		
+		NO_OF_USERS = Integer.parseInt(s);
+				
+		LANG[0] = api.context().currentReply().getField("lang0");
+		
+		if (LANG[0].equals("English")) {
 			l1 = "en";
-		} else if (lang1.equals("French")) {
+		} else if (LANG[0].equals("French")) {
 			l1 = "fr";
-		} else if (lang1.equals("Spanish")) {
+		} else if (LANG[0].equals("Spanish")) {
 			l1 = "es";
-		} else if (lang1.equals("German")) {
+		} else if (LANG[0].equals("German")) {
 			l1 = "de";
 		}
 
