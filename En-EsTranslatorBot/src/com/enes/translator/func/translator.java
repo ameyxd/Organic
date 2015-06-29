@@ -3,6 +3,7 @@ package com.enes.translator.func;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -18,18 +19,26 @@ import org.apache.http.params.HttpConnectionParams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.teamchat.client.annotations.OnKeyword;
 import com.teamchat.client.sdk.TeamchatAPI;
 
 public class translator {
-	
-	public static String key = "trnsl.1.1.20150622T054338Z.c378f0ad722fc3af.252669144c82c5ab87a9026eac890a2bfa28de28"; // API key
 
+	public static String key = "trnsl.1.1.20150622T054338Z.c378f0ad722fc3af.252669144c82c5ab87a9026eac890a2bfa28de28"; // API
+																														// key
 
-	public static String detectLang(String text) throws ClientProtocolException, IOException{ //Under construction
-		
-		String enctext2 = text.replace(" ", "+").replace("?", "%3F"); //url encoding
-		String url1 = "https://translate.yandex.net/api/v1.5/tr.json/detect?key="+key+"&text="+text+"";
-		
+	public static String detectLang(String text)
+			throws ClientProtocolException, IOException { // Under construction
+
+		// String enctext2 = text.replace(" ", "+").replace("?", "%3F"); //url encoding
+
+		String enctext2 = URLEncoder.encode(text, "UTF-8"); // use this for
+															// better url
+															// encoding
+
+		String url1 = "https://translate.yandex.net/api/v1.5/tr.json/detect?key="
+				+ key + "&text=" + enctext2 + "";
+
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url1);
 
@@ -41,23 +50,45 @@ public class translator {
 		while ((line = rd.readLine()) != null)
 			sb.append(line);
 		String output = sb.toString();
-		
+
 		JSONObject j = new JSONObject(output);
 		String lang = j.get("lang").toString();
-		
-		return lang;
-		
-	}
-	
-	public static String translate(String text, String t1, String t2) throws ClientProtocolException,
-			IOException {
-		String enctext = text.replace(" ", "+").replace("?", "%3F");
-		String lang = t1+"-"+t2;
-		String url = "https://translate.yandex.net/api/v1.5/tr.json/translate?key="
-				+ key + "&lang="+lang+"&text=" + enctext + "";
 
-		//String lang1 = detectLang(enctext);
-		
+		return lang;
+
+	}
+
+	public static String codeToLang(String code) {
+
+		String lang = new String();
+
+		if (code.equals("fr")) {
+			lang = "French";
+		}
+
+		if (code.equals("en")) {
+			lang = "English";
+		}
+
+		if (code.equals("es")) {
+			lang = "Spanish";
+		}
+
+		if (code.equals("de")) {
+			lang = "German";
+		}
+		return lang;
+	}
+
+	public static String translate(String text, String t1, String t2)
+			throws ClientProtocolException, IOException {
+		String enctext = text.replace(" ", "+").replace("?", "%3F");
+		String lang = t1 + "-" + t2;
+		String url = "https://translate.yandex.net/api/v1.5/tr.json/translate?key="
+				+ key + "&lang=" + lang + "&text=" + enctext + "";
+
+		// String lang1 = detectLang(enctext);
+
 		HttpClient client = HttpClientBuilder.create().build(); // this default
 																// is
 																// deprecated, I
@@ -83,11 +114,11 @@ public class translator {
 		if (status == 200) { // Check status of query
 			JSONArray trans = (JSONArray) json.get("text");
 			int no = trans.length();
-			
+
 			for (int i = 0; i < no; i++) {
 
 				arr[i] = trans.getString(i);
-				
+
 			}
 			finalout = arr[0];
 		}
@@ -95,23 +126,36 @@ public class translator {
 		return finalout;
 
 	}
-
-	public static void main(String args[]) throws ClientProtocolException,
+/*
+ * 
+ * FOR TESTING
+ */
+/*	public static void main(String args[]) throws ClientProtocolException,
 			IOException {
-		
-		
+
 		TeamchatAPI api = TeamchatAPI.fromFile("TranslateBot.data")
 				.setEmail("teamchatbot1@gmail.com").setPassword("ameyambade");
-		api.startReceivingEvents(new TranslateBot());
+		api.startReceivingEvents(new translator());
 		System.out.println("bc");
-		
-		/*
-		String l1 = "en";
-		String l2 = "es";
-		String s = "Hello?.!";
-		String out = translate(s, l1, l2);
-		System.out.println(out);
-		*/
-	}
 
+		
+		 String l1 = "en"; String l2 = "es"; String s = "Hello?.!"; 
+		 String out = translate(s, l1, l2); System.out.println(out);
+		
+	}
+*/
+/*
+	@OnKeyword("test")
+	public void testFunc(TeamchatAPI api) throws ClientProtocolException,
+			IOException {
+
+		String a = detectLang("Cicada francais");
+		System.out.println(a);
+
+		String language = codeToLang(a);
+		System.out.println(language);
+
+	}
+*/
+	
 }
